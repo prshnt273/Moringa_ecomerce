@@ -28,13 +28,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-RUN cp .env.example .env
 
-RUN php artisan key:generate
 
 RUN npm install && npm run build
 
-RUN php artisan storage:link || true
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
