@@ -9,15 +9,19 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libpng-dev \
     libonig-dev \
+    libpq-dev \
     nodejs \
     npm \
     && docker-php-ext-install \
+    pdo \
     pdo_mysql \
+    pdo_pgsql \
     intl \
     zip \
     mbstring \
     exif \
-    pcntl
+    pcntl \
+    gd
 
 WORKDIR /var/www/html
 
