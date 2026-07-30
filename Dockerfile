@@ -1,6 +1,7 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
 RUN apt-get update && apt-get install -y \
+    nginx \
     git \
     unzip \
     zip \
@@ -18,9 +19,6 @@ RUN apt-get update && apt-get install -y \
     exif \
     pcntl
 
-RUN a2dismod mpm_event mpm_worker mpm_prefork || true \
-    && a2enmod mpm_prefork rewrite
-
 WORKDIR /var/www/html
 
 COPY . .
@@ -29,15 +27,12 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-
-
 RUN npm install && npm run build
 
+COPY nginx.conf /etc/nginx/sites-available/default
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+CMD php-fpm -D && nginx -g "daemon off;"
