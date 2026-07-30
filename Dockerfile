@@ -38,23 +38,25 @@ COPY . .
 # Install PHP dependencies
 RUN composer install --no-dev --optimize-autoloader
 
-# Install Node dependencies and build Vite assets
+# Install frontend dependencies
 RUN npm install
 RUN npm run build
 
-# Laravel permissions
-RUN mkdir -p storage/framework/{cache,sessions,views} bootstrap/cache && \
+# Storage permissions
+RUN mkdir -p storage/framework/cache \
+    storage/framework/sessions \
+    storage/framework/views \
+    bootstrap/cache && \
     chown -R www-data:www-data storage bootstrap/cache && \
     chmod -R 775 storage bootstrap/cache
 
-# Nginx configuration
+# Configure nginx
 COPY nginx.conf /etc/nginx/sites-available/default
+
+# Copy startup script
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
 
 EXPOSE 80
 
-CMD php artisan config:cache && \
-    php artisan route:cache && \
-    php artisan view:cache && \
-    php artisan migrate --force && \
-    service nginx start && \
-    php-fpm
+CMD ["/start.sh"]
