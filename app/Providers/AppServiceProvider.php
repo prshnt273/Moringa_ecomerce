@@ -21,8 +21,13 @@ class AppServiceProvider extends ServiceProvider
             URL::forceScheme('https');
         }
 
-        if (Schema::hasTable('settings')) {
-            View::share('setting', Setting::first());
+        try {
+            if (Schema::hasTable('settings')) {
+                View::share('setting', Setting::first());
+            }
+        } catch (\Throwable $e) {
+            // Database not available yet (e.g. during build/composer install).
+            // Safe to skip; this only affects sharing the settings view variable.
         }
     }
 }
